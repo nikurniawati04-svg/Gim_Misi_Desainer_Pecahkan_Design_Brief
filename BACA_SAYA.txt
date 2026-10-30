@@ -1,69 +1,136 @@
-MISI DESAINER: PECAHKAN DESIGN BRIEF
+MISI DESAINER: PECAHKAN DESIGN BRIEF  (versi 2 - 3 studi kasus)
 Gim edukasi DKV untuk Ruang Murid - Rumah Pendidikan
 Kreator: Ni Luh Putu Kurniawati, S.Kom., M.Kom. - SMK PGRI 2 Badung
 
 CARA MEMAINKAN
-- Buka index.html di peramban (Chrome, Edge, Safari, Firefox). Dapat dimainkan di laptop dan HP.
-- Semua aset (gambar, musik, font) ada di folder assets/, sehingga gim tetap berjalan tanpa internet.
-- Jika diunggah ke server/LMS, unggah seluruh isi folder (index.html, game.js, assets/) tanpa mengubah struktur.
+- Buka index.html di peramban (Chrome, Edge, Safari, Firefox). Bisa di laptop, Chromebook, tablet, dan HP.
+- TIDAK ADA SCROLL. Latar memenuhi layar, baik posisi tegak (potret) maupun mendatar (lanskap);
+  tata letak layar misi otomatis menyesuaikan arah layar. Tombol layar penuh ada di pojok kanan atas.
+- MODE JELAJAH (RPG 2D): pemain berjalan di peta Studio Kreativa untuk menemukan misi.
+  Laptop: W A S D / tombol panah untuk berjalan, E untuk bicara/memulai misi, M untuk peta.
+  HP/tablet: tombol arah di kiri bawah, atau ketuk lantai (pemain berjalan sendiri memutari perabot),
+  lalu tombol Bicara di kanan bawah. Bintang kuning dan panah di tepi layar menunjukkan tujuan misi.
+  Lokasi: Misi 1 komputer resepsionis · Misi 2 klien di ruang tunggu · Misi 3 meja desain ·
+  Misi 4 klien di ruang rapat · Misi 5 area produksi · Konfirmasi klien di ruang presentasi.
+  Kak Kirana (dekat pintu masuk) memberi arahan jika pemain bingung.
+- Semua aset (gambar, musik, font) ada di folder assets/, jadi gim berjalan tanpa internet.
+- Saat mengunggah ke GitHub/server/LMS, unggah seluruh isi folder (index.html, game.js, assets/) tanpa mengubah susunan.
 
-FITUR
-- 10 scene: laman muka, panduan, peta studio, 5 misi, konfirmasi klien, hasil & refleksi.
-- Skor 100 poin (5 misi x 4 item x 5 poin): 5 = benar pertama, 3 = benar setelah memperbaiki, 0 = lihat jawaban.
-- Musik latar orisinal (loop), efek suara, dan suara tokoh. Semua dapat diatur/dimatikan (ikon speaker).
-- Teks dialog selalu tampil. Tombol berlabel teks, bisa dipakai dengan keyboard (Tab, Enter).
-- Progres & refleksi tersimpan di perangkat (localStorage). Tidak ada data pribadi yang dikirim.
+ISI GIM
+- 3 studi kasus klien (data fiktif), masing-masing 5 misi + konfirmasi + hasil & refleksi:
+  Kasus 1  Bu Sari   - Herba Sari Bali        - Poster Instagram   - tantangan: tenggat dipercepat
+  Kasus 2  Pak Wayan - Kopi Bukit Wayan       - Label kemasan      - tantangan: tambahan teks di label kecil
+  Kasus 3  Bu Ayu    - Sanggar Tari Laras Ayu - Spanduk            - tantangan: 12 foto di spanduk
+- Skor 100 poin per kasus: 5 = benar pertama, 3 = benar setelah memperbaiki, 0 = lihat jawaban.
+- Musik latar orisinal, efek suara, suara tokoh. Semua bisa diatur/dimatikan (ikon speaker).
+- Refleksi (3 pertanyaan) memberi umpan balik otomatis: tombol Periksa jawaban menandai ide penting
+  yang sudah/belum ditulis murid, dan tombol Contoh menampilkan contoh jawaban sesuai kasus.
+  Refleksi tidak memengaruhi skor; jawaban bisa disalin untuk dikumpulkan ke guru.
+- Teks dialog selalu tampil. Bisa dimainkan dengan keyboard (Tab, Enter).
+- Progres & refleksi per kasus tersimpan di perangkat (localStorage). Tidak ada data pribadi yang dikirim.
 
 SUARA TOKOH
-- Bawaan: memakai suara bahasa Indonesia dari perangkat, diatur per kalimat agar berintonasi
-  (nada naik saat bertanya, Bu Sari bersuara lebih rendah dan pelan dari Kak Kirana).
-- Hasil paling alami: Microsoft Edge (suara "Gadis Online (Natural)") atau Google Chrome / HP Android.
-  Pemain dapat memilih suara di menu Pengaturan suara (bertanda bintang = paling alami).
+- Bawaan: suara bahasa Indonesia dari perangkat, dibacakan per kalimat dengan intonasi
+  (nada naik saat bertanya; Bu Sari lebih rendah, Pak Wayan memakai suara pria bila tersedia).
+- Paling alami di Microsoft Edge ("... Online (Natural)") lalu Google Chrome / HP Android.
 - MENGGANTI DENGAN REKAMAN SUARA ASLI (opsional):
-  1. Rekam baris pada tabel di bawah, simpan sebagai MP3 dengan nama sesuai kode (mis. vo_01.mp3).
-  2. Taruh file di folder assets/vo/.
+  1. Rekam baris pada daftar di bawah, simpan MP3 dengan nama sesuai kode (mis. umum_muka.mp3).
+  2. Simpan di folder assets/vo/.
   3. Buka assets/vo/daftar.js, tulis kode yang sudah direkam, contoh:
-       window.REKAMAN_SUARA = ["vo_01", "vo_02", "vo_m1_pesan"];
-  Baris yang direkam akan diputar dari file; baris lain tetap dibacakan suara perangkat.
+       window.REKAMAN_SUARA = ["umum_muka", "sari_m1_pesan"];
+  Baris yang direkam diputar dari file; baris lain tetap dibacakan suara perangkat.
+  (Umpan balik singkat seperti "Benar!" tetap memakai suara perangkat.)
 
 DATA YANG PERLU DICEK GURU
-- Pesan utama poster ("Segarnya Alami, Semangatnya Hari Ini") adalah contoh fiktif; ubah di game.js bila perlu.
+- Pesan utama/slogan tiap klien adalah contoh fiktif; ubah di game.js bila perlu.
 - Semua nama usaha, harga, tanggal, dan kontak bersifat fiktif.
 
 KREDIT
-- Ilustrasi tokoh & latar: Paket Aset Studio DKV v2 (dibuat dengan bantuan AI).
-- Antarmuka, efek suara, musik latar: dibuat secara programatis (orisinal, bebas royalti).
+- Ilustrasi Kak Kirana, Bu Sari, latar, dan peta: Paket Aset Studio DKV v2 (dibuat dengan bantuan AI).
+- Avatar Pak Wayan & Bu Ayu, antarmuka, efek suara, musik latar: dibuat secara programatis (orisinal).
 - Font: Poppins (SIL Open Font License).
 
-NASKAH SUARA (kode file - tokoh - teks)
-vo_01.mp3  |  Kak Kirana  |  Selamat datang di Studio Kreativa! Aku Kak Kirana, pendamping brief di sini. Ada pesan dari klien yang menunggumu.
-vo_02.mp3  |  Kak Kirana  |  Baca pesan klien, temukan informasinya, lalu susun brief. Tenang saja, kesalahan adalah kesempatan belajar. Petunjuk boleh dipakai kapan pun.
-vo_03.mp3  |  Kak Kirana  |  Ini peta studio kita. Mulailah dari meja resepsionis. Pesan Bu Sari sudah menunggu.
-vo_04.mp3  |  Kak Kirana  |  Semua misi selesai! Sekarang kirim ringkasan brief kepada Bu Sari untuk dikonfirmasi.
-vo_05.mp3  |  Bu Sari  |  Saya ingin tampilannya segar, alami, dan modern. Logonya saya kirim nanti ya, Kak.
-vo_09_awal.mp3  |  Kak Kirana  |  Periksa sekali lagi ringkasan final ini. Jika sudah yakin, kirim kepada Bu Sari.
-vo_09_kirana.mp3  |  Kak Kirana  |  Brief sudah disetujui. Langkah berikutnya adalah riset kreatif dan ideasi. Ingat, persetujuan ini hanya simulasi ya.
-vo_m1_1.mp3  |  Kak Kirana  |  Ada pesan baru dari Bu Sari, klien kita. Sebelum mendesain, kita harus tahu dulu informasi apa saja yang sudah ia berikan.
-vo_m1_2.mp3  |  Kak Kirana  |  Sekarang giliranmu. Tandai empat informasi yang sudah ada di pesan itu. Hati-hati, ada kartu yang informasinya belum disebut!
-vo_m1_3.mp3  |  Kak Kirana  |  Hebat! Kamu sudah menemukan semua informasi yang ada. Tapi lihat, nama usaha, produk, kontak, dan tanggal pastinya belum ada. Kita perlu bertanya kepada Bu Sari.
-vo_m2_1.mp3  |  Bu Sari  |  Halo, Kak! Saya Sari. Silakan tanya apa saja yang Kakak perlukan untuk poster saya.
-vo_m2_2.mp3  |  Kak Kirana  |  Pilih satu pertanyaan di setiap kelompok, lalu tekan Kirim pertanyaan. Pertanyaan yang baik itu sopan dan membantu kebutuhan desain.
-vo_m2_3.mp3  |  Kak Kirana  |  Bagus sekali! Sekarang semua informasi penting sudah terkumpul di Catatan Klien.
-vo_m2_jawab1.mp3  |  Bu Sari  |  Nama usaha saya Herba Sari Bali. Produk yang ingin dipromosikan Kunyit Asam Segar, harganya Rp15.000 per botol.
-vo_m2_jawab2.mp3  |  Bu Sari  |  Tujuannya mengenalkan produk dan mengajak orang memesan. Sasarannya anak muda usia 16–25 tahun.
-vo_m2_jawab3.mp3  |  Bu Sari  |  Pesan utamanya “Segarnya Alami, Semangatnya Hari Ini”. Cantumkan nomor pemesanan kami, 08xx-xxxx-xxxx.
-vo_m2_jawab4.mp3  |  Bu Sari  |  Final tanggal 7 November 2026. Logo akan saya kirim nanti. Saya ingin tampilannya segar, alami, dan modern, dengan warna hijau dan kuning.
-vo_m3_1.mp3  |  Kak Kirana  |  Kelompokkan informasi dari klien agar tim memahami tugasnya. Setiap kartu menjawab satu pertanyaan: untuk apa, siapa, di mana, atau seperti apa.
-vo_m3_2.mp3  |  Kak Kirana  |  Rapi sekali! Sekarang tim bisa langsung memahami untuk apa, untuk siapa, di mana, dan seperti apa poster ini.
-vo_m4_1.mp3  |  Kak Kirana  |  Klien meminta perubahan tenggat. Jangan panik, dan jangan langsung berjanji. Kita selesaikan langkah demi langkah.
-vo_m4_2.mp3  |  Bu Sari  |  Terima kasih, Kak. Penjelasannya jelas. Tenggat final tetap 7 November.
-vo_m4_alasan.mp3  |  Bu Sari  |  Ada bazar kampus tanggal 8 November. Saya ingin promosi sudah tayang sebelum itu.
-vo_m4_catat.mp3  |  Kak Kirana  |  Tepat. Kesepakatan dicatat, bukan diasumsikan.
-vo_m4_kapasitas.mp3  |  Kak Kirana  |  Aku sudah cek. Tim sedang mengerjakan dua proyek lain. Jika final 5 November, waktu revisi jadi sangat sempit.
-vo_m4_tawar.mp3  |  Bu Sari  |  Oh, begitu. Draf tanggal 5 dan final tetap 7 November? Baik, saya setuju. Masih sempat untuk bazar.
-vo_m5_1.mp3  |  Kak Kirana  |  Tim membuat ringkasan brief, tapi ada empat kesalahan. Bandingkan setiap baris dengan catatan klien dan hasil negosiasi terakhir.
-vo_m5_2.mp3  |  Kak Kirana  |  Teliti sekali! Ringkasan brief sekarang sudah konsisten. Saatnya dikirim ke Bu Sari untuk dikonfirmasi.
-vo_m1_pesan.mp3  |  Bu Sari  |  Halo, saya pemilik usaha minuman herbal. Saya ingin poster promosi Instagram untuk anak muda. Harap selesai minggu depan.
-vo_m4_pesan.mp3  |  Bu Sari  |  Kak, apakah posternya bisa final 5 November? Saya butuh lebih cepat dua hari dari jadwal semula.
-vo_09_pemain.mp3  |  Pemain  |  Bu, ini ringkasan brief-nya. Mohon dicek dan dikonfirmasi.
-vo_09.mp3  |  Bu Sari  |  Ya, ringkasan sudah sesuai. Logo akan saya kirim hari ini. Terima kasih, Kak!
+NASKAH SUARA (kode file | tokoh | teks)
+
+[UMUM (semua kasus)]
+umum_muka.mp3  |  Kak Kirana  |  Selamat datang di Studio Kreativa! Aku Kak Kirana, pendamping brief di sini. Hari ini ada tiga klien yang menunggu bantuanmu.
+umum_panduan.mp3  |  Kak Kirana  |  Baca pesan klien, temukan informasinya, lalu susun brief. Tenang saja, kesalahan adalah kesempatan belajar. Petunjuk boleh dipakai kapan pun.
+umum_kasus.mp3  |  Kak Kirana  |  Pilih satu klien untuk kamu bantu. Setiap klien punya kebutuhan desain yang berbeda. Selesaikan ketiganya, ya!
+umum_peta.mp3  |  Kak Kirana  |  Ini peta studio kita. Mulailah dari meja resepsionis. Pesan klien sudah menunggu.
+umum_peta_konf.mp3  |  Kak Kirana  |  Semua misi selesai! Sekarang kirim ringkasan brief kepada klien untuk dikonfirmasi.
+umum_m1_2.mp3  |  Kak Kirana  |  Sekarang giliranmu. Tandai empat informasi yang sudah ada di pesan itu. Hati-hati, ada kartu yang informasinya belum disebut!
+umum_m2_2.mp3  |  Kak Kirana  |  Pilih satu pertanyaan di setiap kelompok, lalu tekan Kirim pertanyaan. Pertanyaan yang baik itu sopan dan membantu kebutuhan desain.
+umum_m2_3.mp3  |  Kak Kirana  |  Bagus sekali! Sekarang semua informasi penting sudah terkumpul di Catatan Klien.
+umum_m3_1.mp3  |  Kak Kirana  |  Kelompokkan informasi dari klien agar tim memahami tugasnya. Setiap kartu menjawab satu pertanyaan: untuk apa, siapa, di mana, atau seperti apa.
+umum_m5_1.mp3  |  Kak Kirana  |  Tim membuat ringkasan brief, tapi ada empat kesalahan. Bandingkan setiap baris dengan catatan klien dan hasil negosiasi terakhir.
+umum_k_kirana.mp3  |  Kak Kirana  |  Brief sudah disetujui. Langkah berikutnya adalah riset kreatif dan ideasi. Ingat, persetujuan ini hanya simulasi ya.
+
+[KASUS 1 - Bu Sari (poster Instagram)]
+sari_m1_1.mp3  |  Kak Kirana  |  Ada pesan baru dari Bu Sari, klien kita. Sebelum mendesain, kita harus tahu dulu informasi apa saja yang sudah diberikan.
+sari_m1_pesan.mp3  |  Bu Sari  |  Halo, saya pemilik usaha minuman herbal. Saya ingin poster promosi Instagram untuk anak muda. Harap selesai minggu depan.
+sari_m1_3.mp3  |  Kak Kirana  |  Hebat! Semua informasi yang ada sudah ditemukan. Tapi nama usaha, produk, harga, kontak, dan tanggal pasti belum ada. Kita perlu bertanya kepada Bu Sari.
+sari_m2_1.mp3  |  Bu Sari  |  Halo, Kak! Saya Sari. Silakan tanya apa saja yang Kakak perlukan untuk poster saya.
+sari_m2_jawab1.mp3  |  Bu Sari  |  Nama usaha saya Herba Sari Bali. Produk yang ingin dipromosikan Kunyit Asam Segar, harganya Rp15.000 per botol.
+sari_m2_jawab2.mp3  |  Bu Sari  |  Tujuannya mengenalkan produk dan mengajak orang memesan. Sasarannya anak muda usia 16–25 tahun.
+sari_m2_jawab3.mp3  |  Bu Sari  |  Pesan utamanya “Segarnya Alami, Semangatnya Hari Ini”. Cantumkan nomor pemesanan kami, 08xx-xxxx-xxxx.
+sari_m2_jawab4.mp3  |  Bu Sari  |  Final tanggal 7 November 2026. Logo akan saya kirim nanti. Saya ingin tampilannya segar, alami, dan modern, dengan warna hijau dan kuning.
+sari_info.mp3  |  Bu Sari  |  Saya ingin tampilannya segar, alami, dan modern. Logonya saya kirim nanti ya, Kak.
+sari_m3_2.mp3  |  Kak Kirana  |  Rapi sekali! Sekarang tim bisa langsung memahami untuk apa, untuk siapa, di mana, dan seperti apa poster ini.
+sari_m4_pesan.mp3  |  Bu Sari  |  Kak, apakah posternya bisa final 5 November? Saya butuh lebih cepat dua hari dari jadwal semula.
+sari_m4_1.mp3  |  Kak Kirana  |  Klien meminta tenggat lebih cepat. Jangan panik, dan jangan langsung berjanji. Kita selesaikan langkah demi langkah.
+sari_m4_alasan.mp3  |  Bu Sari  |  Ada bazar kampus tanggal 8 November. Saya ingin promosi sudah tayang sebelum itu.
+sari_m4_dampak.mp3  |  Kak Kirana  |  Aku sudah cek. Tim sedang mengerjakan dua proyek lain. Jika final 5 November, waktu revisi jadi sangat sempit.
+sari_m4_tawar.mp3  |  Bu Sari  |  Oh, begitu. Draf tanggal 5 dan final tetap 7 November? Baik, saya setuju. Masih sempat untuk bazar.
+sari_m4_catat.mp3  |  Kak Kirana  |  Tepat. Kesepakatan dicatat, bukan diasumsikan.
+sari_m4_2.mp3  |  Bu Sari  |  Terima kasih, Kak. Penjelasannya jelas. Tenggat final tetap 7 November.
+sari_m5_2.mp3  |  Kak Kirana  |  Teliti sekali! Ringkasan brief sekarang sudah konsisten. Saatnya dikirim ke Bu Sari untuk dikonfirmasi.
+sari_k_awal.mp3  |  Kak Kirana  |  Periksa sekali lagi ringkasan final ini. Jika sudah yakin, kirim kepada Bu Sari.
+sari_k_pemain.mp3  |  Pemain  |  Bu, ini ringkasan brief-nya. Mohon dicek dan dikonfirmasi.
+sari_k_setuju.mp3  |  Bu Sari  |  Ya, ringkasan sudah sesuai. Logo akan saya kirim hari ini. Terima kasih, Kak!
+
+[KASUS 2 - Pak Wayan (label kemasan)]
+wayan_m1_1.mp3  |  Kak Kirana  |  Ada pesan baru dari Pak Wayan, klien kita. Sebelum mendesain, kita harus tahu dulu informasi apa saja yang sudah diberikan.
+wayan_m1_pesan.mp3  |  Pak Wayan  |  Om swastiastu, Kak. Saya punya usaha kopi bubuk rumahan. Saya perlu desain label kemasan supaya kopi saya menarik untuk wisatawan. Kalau bisa selesai pertengahan bulan depan.
+wayan_m1_3.mp3  |  Kak Kirana  |  Hebat! Semua informasi yang ada sudah ditemukan. Tapi nama usaha, nama produk, ukuran label, harga, dan tanggal pasti belum ada. Kita perlu bertanya kepada Pak Wayan.
+wayan_m2_1.mp3  |  Pak Wayan  |  Om swastiastu, Kak. Silakan, apa saja yang perlu Kakak tanyakan untuk label kopi saya?
+wayan_m2_jawab1.mp3  |  Pak Wayan  |  Nama usahanya Kopi Bukit Wayan. Produknya Kopi Arabika Bubuk isi 250 gram, harganya Rp65.000.
+wayan_m2_jawab2.mp3  |  Pak Wayan  |  Saya ingin kopi saya terlihat sebagai oleh-oleh khas Bali dan dibeli wisatawan. Sasarannya wisatawan usia 25–45 tahun.
+wayan_m2_jawab3.mp3  |  Pak Wayan  |  Ukuran label 8 × 12 cm. Wajib ada nama produk, berat bersih 250 gram, dan nomor izin produk yang nanti saya kirim. Slogannya “Aroma Bukit, Rasa Bali”.
+wayan_m2_jawab4.mp3  |  Pak Wayan  |  Final tanggal 14 November 2026. Saya punya foto biji kopi dan logo. Saya ingin kesannya alami dan hangat, warna cokelat dan krem.
+wayan_info.mp3  |  Pak Wayan  |  Saya ingin kesannya alami dan hangat, seperti suasana kebun kopi di pagi hari, Kak.
+wayan_m3_2.mp3  |  Kak Kirana  |  Rapi sekali! Sekarang tim bisa langsung memahami untuk apa, untuk siapa, di mana, dan seperti apa label ini.
+wayan_m4_pesan.mp3  |  Pak Wayan  |  Kak, bisa labelnya ditambah tulisan bahasa Inggris dan seluruh cerita tentang kebun kopi saya? Banyak pembeli dari luar negeri.
+wayan_m4_1.mp3  |  Kak Kirana  |  Klien ingin menambah isi label. Ruang label terbatas, jadi kita perlu memahami kebutuhannya dulu sebelum menjawab.
+wayan_m4_alasan.mp3  |  Pak Wayan  |  Banyak wisatawan mancanegara mampir ke toko saya. Mereka sering bertanya asal-usul kopinya.
+wayan_m4_dampak.mp3  |  Kak Kirana  |  Aku sudah cek. Kalau semua cerita masuk, huruf harus sangat kecil dan label jadi sesak. Perubahan isi juga butuh tambahan dua hari.
+wayan_m4_tawar.mp3  |  Pak Wayan  |  Ide kode QR itu bagus sekali! Baik, saya setuju, final tanggal 16 November.
+wayan_m4_catat.mp3  |  Kak Kirana  |  Tepat. Perubahan isi dan jadwal dicatat, bukan diasumsikan.
+wayan_m4_2.mp3  |  Pak Wayan  |  Suksma, Kak. Jadi label dua bahasa, ada kode QR, dan final tanggal 16 November.
+wayan_m5_2.mp3  |  Kak Kirana  |  Teliti sekali! Ringkasan brief sekarang sudah konsisten. Saatnya dikirim ke Pak Wayan untuk dikonfirmasi.
+wayan_k_awal.mp3  |  Kak Kirana  |  Periksa sekali lagi ringkasan final ini. Jika sudah yakin, kirim kepada Pak Wayan.
+wayan_k_pemain.mp3  |  Pemain  |  Pak, ini ringkasan brief-nya. Mohon dicek dan dikonfirmasi.
+wayan_k_setuju.mp3  |  Pak Wayan  |  Ya, ringkasannya sudah sesuai. Foto dan logo saya kirim hari ini. Suksma, Kak!
+
+[KASUS 3 - Bu Ayu (spanduk)]
+ayu_m1_1.mp3  |  Kak Kirana  |  Ada pesan baru dari Bu Ayu, klien kita. Sebelum mendesain, kita harus tahu dulu informasi apa saja yang sudah diberikan.
+ayu_m1_pesan.mp3  |  Bu Ayu  |  Selamat siang, Kak. Saya mengelola sanggar tari anak. Kami mau membuka pendaftaran murid baru dan perlu spanduk di depan sanggar. Sasarannya para orang tua. Mohon dibantu secepatnya.
+ayu_m1_3.mp3  |  Kak Kirana  |  Hebat! Semua informasi yang ada sudah ditemukan. Tapi nama sanggar, ukuran spanduk, biaya, kontak, dan tanggal pasti belum ada. Kita perlu bertanya kepada Bu Ayu.
+ayu_m2_1.mp3  |  Bu Ayu  |  Selamat siang, Kak. Silakan tanyakan apa saja supaya spanduk sanggar kami tepat sasaran.
+ayu_m2_jawab1.mp3  |  Bu Ayu  |  Nama sanggarnya Laras Ayu. Kami membuka kelas tari Bali untuk anak usia 6–12 tahun, biayanya Rp100.000 per bulan.
+ayu_m2_jawab2.mp3  |  Bu Ayu  |  Saya ingin orang tua tertarik dan mendaftarkan anaknya. Sasarannya orang tua usia 30–45 tahun yang lewat di depan sanggar.
+ayu_m2_jawab3.mp3  |  Bu Ayu  |  Ukurannya 3 × 1 meter. Tulis “Ayo Menari, Lestarikan Budaya!”, jadwal latihan Sabtu dan Minggu, serta nomor pendaftaran 08xx-xxxx-xxxx.
+ayu_m2_jawab4.mp3  |  Bu Ayu  |  Harus terpasang 10 November 2026. Saya punya foto anak-anak menari. Warnanya merah dan emas, kesannya ceria dan khas Bali.
+ayu_info.mp3  |  Bu Ayu  |  Saya ingin spanduknya ceria dan khas Bali, supaya orang tua langsung tertarik, Kak.
+ayu_m3_2.mp3  |  Kak Kirana  |  Rapi sekali! Sekarang tim bisa langsung memahami untuk apa, untuk siapa, di mana, dan seperti apa spanduk ini.
+ayu_m4_pesan.mp3  |  Bu Ayu  |  Kak, saya ingin semua 12 foto murid dimasukkan ke spanduk, biar semua orang tua senang.
+ayu_m4_1.mp3  |  Kak Kirana  |  Klien ingin mengubah isi spanduk. Spanduk dibaca dari jauh, jadi kita perlu menimbang dampaknya bersama klien.
+ayu_m4_alasan.mp3  |  Bu Ayu  |  Saya ingin semua orang tua murid merasa anaknya dihargai.
+ayu_m4_dampak.mp3  |  Kak Kirana  |  Aku sudah cek. Orang yang lewat hanya melihat spanduk beberapa detik. Dua belas foto kecil akan menenggelamkan pesan utamanya.
+ayu_m4_tawar.mp3  |  Bu Ayu  |  Wah, kolase di media sosial itu ide bagus! Saya setuju, spanduk cukup dua foto. Kolasenya tanggal 12 November ya.
+ayu_m4_catat.mp3  |  Kak Kirana  |  Tepat. Kesepakatan dicatat, termasuk pekerjaan tambahannya.
+ayu_m4_2.mp3  |  Bu Ayu  |  Terima kasih, Kak. Spanduk dua foto tetap tanggal 10, kolasenya menyusul tanggal 12 November.
+ayu_m5_2.mp3  |  Kak Kirana  |  Teliti sekali! Ringkasan brief sekarang sudah konsisten. Saatnya dikirim ke Bu Ayu untuk dikonfirmasi.
+ayu_k_awal.mp3  |  Kak Kirana  |  Periksa sekali lagi ringkasan final ini. Jika sudah yakin, kirim kepada Bu Ayu.
+ayu_k_pemain.mp3  |  Pemain  |  Bu, ini ringkasan brief-nya. Mohon dicek dan dikonfirmasi.
+ayu_k_setuju.mp3  |  Bu Ayu  |  Ya, sudah sesuai semuanya. Foto-fotonya saya kirim sore ini. Terima kasih, Kak!
+

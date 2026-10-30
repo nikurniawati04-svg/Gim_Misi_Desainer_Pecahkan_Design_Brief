@@ -446,7 +446,7 @@ function bicara(siapa, teks, o = {}) {
       <div class="aksi"><span class="gelombang" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><span>berbicara…</span></span>
         <button class="btn sek kecil" id="dlg-ulang" aria-label="Putar ulang suara">${ICON.ulang}<span>Putar ulang</span></button>
         <button class="btn kecil" id="dlg-lanjut">${esc(o.tombol || 'Lanjut')} ${ICON.lanjut}</button></div></div>`;
-    $('#tirai').classList.add('on');
+    $('#tirai').classList.add('on'); document.body.classList.add('dlg-buka');
     const p = $('#dlg-teks'); let i = 0, selesaiKetik = false;
     const ketik = setInterval(() => { i += 2; p.textContent = teks.slice(0, i); if (i >= teks.length) { clearInterval(ketik); selesaiKetik = true; } }, 22);
     const ucap = () => Suara.ucap(siapa, teks, o.id); ucap();
@@ -454,7 +454,7 @@ function bicara(siapa, teks, o = {}) {
     const lanjut = $('#dlg-lanjut');
     lanjut.onclick = () => {
       if (!selesaiKetik) { clearInterval(ketik); p.textContent = teks; selesaiKetik = true; return; }
-      Audio2.efek('klik'); Suara.stop(); dialog.className = ''; dialog.innerHTML = ''; $('#tirai').classList.remove('on'); res();
+      Audio2.efek('klik'); Suara.stop(); dialog.className = ''; dialog.innerHTML = ''; $('#tirai').classList.remove('on'); document.body.classList.remove('dlg-buka'); res();
     };
     setTimeout(() => lanjut.focus({ preventScroll: true }), 50);
   });
@@ -463,11 +463,11 @@ const bicaraKode = (id, o = {}) => bicara(NASKAH[id][0], NASKAH[id][1], Object.a
 
 function bukaModal(html, o = {}) {
   modal.innerHTML = `<div class="kotak" style="${o.lebar ? 'width:' + o.lebar + 'px' : ''}">${o.tanpaTutup ? '' : `<button class="ikonbtn tutup" aria-label="Tutup" data-tutup>${ICON.tutup}</button>`}${html}</div>`;
-  modal.classList.add('buka');
+  modal.classList.add('buka'); document.body.classList.add('mdl-buka');
   $$('[data-tutup]', modal).forEach(b => b.onclick = () => { Audio2.efek('klik'); tutupModal(); });
   const f = modal.querySelector('button:not(.tutup),[href],input,select,textarea') || modal.querySelector('button'); f && f.focus({ preventScroll: true });
 }
-function tutupModal() { modal.classList.remove('buka'); modal.innerHTML = ''; }
+function tutupModal() { modal.classList.remove('buka'); modal.innerHTML = ''; document.body.classList.remove('mdl-buka'); }
 modal.addEventListener('click', e => { if (e.target === modal && !modal.querySelector('[data-wajib]')) tutupModal(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('buka') && !modal.querySelector('[data-wajib]')) tutupModal(); });
 
@@ -507,14 +507,14 @@ function pasangHUD(o = {}) {
     <div class="spacer"></div>
     ${o.skor === false ? '' : `<div class="skor" id="hud-skor" aria-label="Skor"><img src="${BINTANG}" alt=""><b>${skorTampil()}</b></div>`}
     ${d && d.selesai[2] ? `<button class="pilbtn" id="hud-catatan">${ICON.catatan}<span>Catatan</span></button>` : ''}
-    ${o.peta === false ? '' : `<button class="ikonbtn" id="hud-peta" aria-label="Peta studio">${ICON.peta}</button>`}
+    ${o.peta === false ? '' : `<button class="ikonbtn" id="hud-peta" aria-label="Kembali ke studio">${ICON.peta}</button>`}
     <button class="ikonbtn" id="hud-panduan" aria-label="Panduan bermain">${ICON.tanya}</button>
     <button class="ikonbtn" id="hud-suara" aria-label="Pengaturan suara">${adaSuara() ? ICON.suara : ICON.bisu}</button>
     <button class="ikonbtn" id="hud-layar" aria-label="Layar penuh">${ICON.layar}</button>`;
   $('#hud-suara').onclick = () => { Audio2.efek('klik'); bukaSuara(); };
   $('#hud-panduan').onclick = () => { Audio2.efek('klik'); modalPanduan(); };
   $('#hud-layar').onclick = () => { Audio2.efek('klik'); layarPenuh(); };
-  const pt = $('#hud-peta'); if (pt) pt.onclick = () => { Audio2.efek('klik'); keScene(S.kasus ? 'peta' : 'pilihKasus'); };
+  const pt = $('#hud-peta'); if (pt) pt.onclick = () => { Audio2.efek('klik'); keScene(S.kasus ? 'jelajah' : 'pilihKasus'); };
   const ct = $('#hud-catatan'); if (ct) ct.onclick = () => { Audio2.efek('klik'); modalCatatan(); };
 }
 function perbaruiIkonSuara() { ['#hud-suara', '#muka-suara'].forEach(s => { const b = $(s); if (b) b.innerHTML = adaSuara() ? ICON.suara : ICON.bisu; }); }
@@ -574,17 +574,19 @@ function modalPanduan() {
    ========================================================= */
 const SCENE = {};
 async function keScene(nama, arg) {
-  Suara.stop(); tutupModal(); dialog.className = ''; dialog.innerHTML = ''; $('#tirai').classList.remove('on');
+  Suara.stop(); tutupModal(); dialog.className = ''; dialog.innerHTML = ''; $('#tirai').classList.remove('on'); document.body.classList.remove('dlg-buka');
   layar.innerHTML = ''; M = null;
+  if (nama === 'peta') nama = 'jelajah';
+  $('#stage').classList.toggle('muka', nama === 'muka');
+  if (nama !== 'jelajah') Dunia.keluar();
   await SCENE[nama](arg);
 }
 
 /* ---------- Laman muka ---------- */
 SCENE.muka = async () => {
-  hud.hidden = true; latar(''); tokoh('l'); tokoh('r', 'kirana', 'sapa');
+  hud.hidden = false; hud.innerHTML = `<div class="spacer"></div><button class="ikonbtn" id="muka-suara" aria-label="Pengaturan suara"></button><button class="ikonbtn" id="muka-layar" aria-label="Layar penuh">${ICON.layar}</button>`; latar(''); tokoh('l'); tokoh('r', 'kirana', 'sapa');
   const ada = Object.keys(S.data).some(id => jumlahSelesai(id) > 0);
-  layar.innerHTML = `<div class="layar ka" style="top:-76px;bottom:0;align-items:center">
-    <div style="position:absolute;right:-306px;top:16px;display:flex;gap:10px"><button class="ikonbtn" id="muka-suara" aria-label="Pengaturan suara"></button><button class="ikonbtn" id="muka-layar" aria-label="Layar penuh">${ICON.layar}</button></div>
+  layar.innerHTML = `<div class="layar ka" data-p="muka" style="top:-60px;bottom:0;align-items:center">
     <div class="kartu-judul">
       <span class="logo-studio" style="color:var(--teal)">Studio Kreativa · DKV</span>
       <h1>Misi Desainer</h1>
@@ -630,7 +632,7 @@ function modalTentang() {
 /* ---------- Panduan ---------- */
 SCENE.panduan = async () => {
   pasangHUD({ judul: 'Panduan permainan', sub: 'Studio Kreativa', peta: false, skor: false }); latar('redup'); tokoh('r'); tokoh('l', 'kirana', 'tunjuk');
-  layar.innerHTML = `<div class="layar ki"><div class="panel" style="flex:1;gap:14px">
+  layar.innerHTML = `<div class="layar ki" data-p="panduan"><div class="panel" style="flex:1;gap:14px">
     <span class="label">Papan panduan</span><h2 style="font-size:28px">Cara bermain</h2>
     <p class="sub" style="font-size:15px">Baca pesan klien, temukan informasinya, tanyakan yang kurang, lalu susun dan periksa brief.</p>
     ${htmlAturan()}
@@ -660,7 +662,7 @@ function contohLatihan() {
 /* ---------- Pilih kasus ---------- */
 SCENE.pilihKasus = async () => {
   pasangHUD({ judul: 'Pilih klien', sub: 'Tiga studi kasus', peta: false, skor: false }); latar('redup'); tanpaTokoh();
-  layar.innerHTML = `<div class="layar">${KASUS.map(k => {
+  layar.innerHTML = `<div class="layar" data-p="kasus">${KASUS.map(k => {
     const d = D(k.id), n = jumlahSelesai(k.id), t = totalSemua(k.id);
     const status = d.konfirmasi ? `Selesai · skor ${t}/100` : n ? `${n} dari 5 misi · skor ${t}` : 'Belum dimulai';
     return `<div class="kasus-kartu ${S.kasus === k.id ? 'aktif' : ''}">
@@ -674,48 +676,15 @@ SCENE.pilihKasus = async () => {
       <div style="margin-top:auto;display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:700">${status}</span><div class="kemajuan"><i style="width:${n * 20}%"></i></div></div>
       <button class="btn ${d.konfirmasi ? 'sek' : ''}" data-k="${k.id}" aria-label="${n ? 'Lanjutkan' : 'Pilih'} kasus ${k.no}, ${esc(k.klien.nama)}">${d.konfirmasi ? 'Lihat hasil' : n ? 'Lanjutkan' : 'Pilih kasus'} ${ICON.lanjut}</button>
     </div>`; }).join('')}</div>`;
-  $$('[data-k]').forEach(b => b.onclick = () => { Audio2.efek('klik'); S.kasus = b.dataset.k; simpan(); keScene(D().konfirmasi ? 'hasil' : 'peta'); });
+  $$('[data-k]').forEach(b => b.onclick = () => { Audio2.efek('klik'); S.kasus = b.dataset.k; simpan(); keScene(D().konfirmasi ? 'hasil' : 'jelajah'); });
   await tunggu(400);
   if ($('[data-k]')) Suara.kode('umum_kasus');
 };
 
-/* ---------- Peta studio ---------- */
+/* ---------- Studio (mode jelajah, lihat Dunia) ---------- */
 const terbuka = n => n === 1 || !!D().selesai[n - 1];
 function misiBerikut() { for (let n = 1; n <= 5; n++) if (!D().selesai[n]) return n; return D().konfirmasi ? 'hasil' : 'konfirmasi'; }
-SCENE.peta = async () => {
-  if (!S.kasus) return keScene('pilihKasus');
-  const k = K(), d = D();
-  pasangHUD({ judul: 'Peta Studio Kreativa', peta: false }); latar('redup'); tanpaTokoh();
-  const nx = misiBerikut();
-  const bintang = n => { const t = totalMisi(n); const b = t >= 20 ? 3 : t >= 14 ? 2 : 1; return d.selesai[n] ? `<span class="bnt" aria-hidden="true">${[0, 1, 2].map(i => `<img src="${BINTANG}" alt="" style="${i < b ? '' : 'filter:grayscale(1);opacity:.4'}">`).join('')}</span>` : ''; };
-  const titik = [1, 2, 3, 4, 5].map(n => { const m = MISI[n], buka = terbuka(n);
-    const ket = `Misi ${n}: ${m.nama}, ${m.tempat}. ${d.selesai[n] ? 'Selesai, skor ' + totalMisi(n) + ' dari 20.' : buka ? 'Terbuka.' : 'Terkunci.'}`;
-    return `<button class="titik-misi ${buka ? '' : 'kunci'} ${nx === n ? 'aktif' : ''}" style="left:${m.x}%;top:${m.y}%" data-n="${n}" aria-label="${esc(ket)}"><img class="lenc" src="${LENC(n)}" alt=""><span class="nm">${n}. ${m.tempat}</span>${bintang(n)}</button>`; }).join('');
-  const ks = !!d.selesai[5];
-  const pin = typeof nx === 'number' ? MISI[nx] : { x: 50, y: 64 };
-  layar.innerHTML = `<div class="layar"><div class="peta-wrap" role="group" aria-label="Peta studio. Pilih misi.">
-      ${titik}
-      <button class="titik-misi ${ks ? '' : 'kunci'} ${nx === 'konfirmasi' ? 'aktif' : ''}" style="left:50%;top:64%" data-n="k" aria-label="Konfirmasi brief ${ks ? '' : '(terkunci sampai Misi 5 selesai)'}">
-        <span class="lenc" style="display:grid;place-items:center;width:66px;height:66px;border-radius:50%;background:#fff;border:4px solid #157A64;color:#157A64">${ICON.kirim.replace('<svg', '<svg width="34" height="34"')}</span><span class="nm">Konfirmasi brief</span></button>
-      <span class="pin-kirana" style="left:${pin.x}%;top:${pin.y}%"></span>
-      <div class="peta-aksi"><button class="btn sek kecil" id="ke-kasus">${ICON.orang}Ganti klien</button><button class="btn sek kecil" id="ke-muka">Laman muka</button>${d.konfirmasi ? `<button class="btn emas kecil" id="ke-hasil">Hasil &amp; refleksi</button>` : ''}</div>
-      <div class="peta-kasus"><span class="ava-bulat" style="width:48px;height:48px;border:3px solid var(--emas);background-image:url('${ava(k.klien.id)}')"></span><div><b>Kasus ${k.no} · ${esc(k.klien.nama)}</b>${esc(k.jenis)} · ${jumlahSelesai(k.id)}/5 misi</div></div>
-    </div></div>`;
-  $$('.titik-misi').forEach(b => b.onclick = () => {
-    const n = b.dataset.n;
-    if (n === 'k') { if (!ks) { Audio2.efek('salah'); toast('Selesaikan Misi 5 dulu.'); return; } Audio2.efek('klik'); keScene('konfirmasi'); return; }
-    if (!terbuka(+n)) { Audio2.efek('salah'); toast(`Selesaikan Misi ${n - 1} dulu.`); return; }
-    Audio2.efek('klik'); bukaMisi(+n);
-  });
-  $('#ke-muka').onclick = () => { Audio2.efek('klik'); keScene('muka'); };
-  $('#ke-kasus').onclick = () => { Audio2.efek('klik'); keScene('pilihKasus'); };
-  const h = $('#ke-hasil'); if (h) h.onclick = () => { Audio2.efek('klik'); keScene('hasil'); };
-  await tunggu(350);
-  if (!$('.peta-wrap')) return;
-  if (nx === 1 && !d.skor[1]) Suara.kode('umum_peta');
-  else if (nx === 'konfirmasi') Suara.kode('umum_peta_konf');
-  else if (typeof nx === 'number') Suara.ucap('kirana', `Bagus! Berikutnya, Misi ${nx}: ${MISI[nx].nama}, di ${MISI[nx].tempat.toLowerCase()}.`);
-};
+SCENE.jelajah = async () => { if (!S.kasus) return keScene('pilihKasus'); hud.hidden = true; tanpaTokoh(); Dunia.masuk(); };
 function bukaMisi(n) {
   const m = MISI[n], d = D();
   bukaModal(`<div style="display:flex;gap:18px;align-items:center"><img src="${LENC(n)}" alt="" style="width:80px">
@@ -725,7 +694,7 @@ function bukaMisi(n) {
   $('#go').onclick = () => { Audio2.efek('klik'); keScene('misi' + n); };
 }
 
-async function selesaiMisi(nextScene) {
+async function selesaiMisi(nextScene, berikut) {
   const total = Object.values(M.pts).reduce((a, b) => a + b, 0), no = M.no, d = D();
   d.skor[no] = { pts: Object.assign({}, M.pts), total }; d.selesai[no] = true; simpan();
   const b = total >= 20 ? 3 : total >= 14 ? 2 : 1;
@@ -737,9 +706,9 @@ async function selesaiMisi(nextScene) {
     <span class="label">Misi ${no} selesai · Lencana ${esc(MISI[no].lenc)}</span>
     <h2 style="font-size:40px;margin:4px 0">${total}<small style="font-size:18px;color:var(--navy-2)"> / 20</small></h2>
     <p style="margin:0 0 16px">${kalimat}</p>
-    <div class="alat" style="justify-content:center"><button class="btn sek" id="ke-peta">${ICON.peta}Peta studio</button><button class="btn" id="ke-lanjut">Lanjut ${ICON.lanjut}</button></div></div>`, { tanpaTutup: true, lebar: 540 });
+    <div class="alat" style="justify-content:center">${nextScene === 'infoKlien' ? `<button class="btn" id="ke-lanjut">Lihat Catatan Klien ${ICON.lanjut}</button>` : `<button class="btn sek" id="ke-lanjut">Langsung ${berikut === 'k' ? 'ke konfirmasi' : 'ke Misi ' + berikut}</button><button class="btn" id="ke-peta">${ICON.peta}Jelajahi studio</button>`}</div></div>`, { tanpaTutup: true, lebar: 560 });
   Suara.ucap('kirana', kalimat);
-  $('#ke-peta').onclick = () => { Audio2.efek('klik'); keScene('peta'); };
+  const kp = $('#ke-peta'); if (kp) kp.onclick = () => { Audio2.efek('klik'); keScene('jelajah'); };
   $('#ke-lanjut').onclick = () => { Audio2.efek('klik'); keScene(nextScene); };
 }
 
@@ -763,7 +732,7 @@ const kode = s => K().id + '_' + s;
 SCENE.misi1 = async () => {
   const k = K(); mulaiMisi(1); pasangHUD({ no: 1, judul: 'Misi 1 dari 5 · Pesan awal' }); latar('redup'); tokoh('l'); tokoh('r', 'kirana', 'pikir');
   const KARTU = k.kartu;
-  layar.innerHTML = `<div class="layar ka">
+  layar.innerHTML = `<div class="layar ka" data-p="m1">
     <div class="panel" style="width:330px;flex:none"><span class="label">Meja resepsionis</span><h2>Pesan masuk</h2>
       <div class="chat isi-sisa">${kepalaChat('Klien · pesan baru')}<div class="isi" id="chat"><div class="gel klien mengetik"><i></i><i></i><i></i></div></div></div>
       <div class="alat"><button class="btn sek kecil" id="putar-pesan">${ICON.putar}Putar pesan</button></div></div>
@@ -803,7 +772,7 @@ SCENE.misi1 = async () => {
     umpan('info', 'Informasi yang masih kurang', `${k.kurang}. Di misi berikutnya, kamu akan menanyakannya.`, false);
     await tunggu(600);
     await bicaraKode(kode('m1_3'), { pose: 'bangga', tombol: 'Selesaikan misi' });
-    selesaiMisi('misi2');
+    selesaiMisi('misi2', 2);
   }
 };
 
@@ -811,7 +780,7 @@ SCENE.misi1 = async () => {
 SCENE.misi2 = async () => {
   const k = K(); mulaiMisi(2); pasangHUD({ no: 2, judul: 'Misi 2 dari 5 · Bertanya' }); latar('redup'); tokoh('l'); tokohKlien('sapa');
   const KEL = k.tanya;
-  layar.innerHTML = `<div class="layar ka">
+  layar.innerHTML = `<div class="layar ka" data-p="m2">
     <div class="panel" style="width:380px;flex:none"><div class="mentor"><span class="ava-bulat" style="background-image:url('${IMG.kirana.ava}')"></span><p><b>Kak Kirana</b>Bertanyalah dengan sopan agar brief lengkap. Jangan menebak-nebak.</p></div>
       <div class="chat isi-sisa">${kepalaChat('Klien · ruang tunggu')}<div class="isi" id="chat"><div class="gel info">Jawaban klien disimpan ke Catatan Klien</div></div></div></div>
     <div class="panel" style="flex:1"><span class="label">Tujuan misi</span><h2>Pilih pertanyaan yang paling membantu</h2>
@@ -851,7 +820,7 @@ SCENE.misi2 = async () => {
     tokohKlien('sapa'); $('#umpan').className = 'umpan'; $('#umpan').textContent = 'Pilih satu pertanyaan, lalu tekan Kirim pertanyaan.';
     idx++;
     if (idx < 4) tampil();
-    else { $$('#langkah span').forEach(s => s.className = 'ok'); await bicaraKode('umum_m2_3', { pose: 'bangga', tombol: 'Selesaikan misi' }); selesaiMisi('infoKlien'); }
+    else { $$('#langkah span').forEach(s => s.className = 'ok'); await bicaraKode('umum_m2_3', { pose: 'bangga', tombol: 'Selesaikan misi' }); selesaiMisi('infoKlien', 3); }
   };
   $('#b-kirim').onclick = () => { Audio2.efek('klik'); kirim(false); };
   pasangAlat(() => KEL[idx].tip + ' Pilih pertanyaan yang sopan, jelas, dan tidak menebak.', () => kirim(true));
@@ -861,12 +830,13 @@ SCENE.misi2 = async () => {
 /* ---------- Informasi klien ---------- */
 SCENE.infoKlien = async () => {
   const k = K(); pasangHUD({ judul: 'Misi 2 selesai · Catatan Klien' }); latar('redup'); tokoh('l'); tokohKlien('jelas');
-  layar.innerHTML = `<div class="layar ka"><div class="panel" style="flex:1;gap:12px">
+  layar.innerHTML = `<div class="layar ka" data-p="info"><div class="panel" style="flex:1;gap:12px">
     <span class="label">Rangkuman jawaban klien</span><h2>Catatan Klien <span class="fiktif">data fiktif</span></h2>
     <p class="sub">${esc(k.klien.nama)} · ${esc(k.usaha)}. Catatan ini dapat dibuka lagi kapan saja dari tombol <b>Catatan</b> di bagian atas.</p>
     ${htmlCatatan(3)}
-    <div class="alat" style="margin-top:auto"><button class="btn" id="lanjut3">Lanjut ke Misi 3 ${ICON.lanjut}</button></div></div></div>`;
-  $('#lanjut3').onclick = () => { Audio2.efek('klik'); keScene('misi3'); };
+    <div class="alat" style="margin-top:auto"><button class="btn sek" id="lanjut3b">Langsung ke Misi 3</button><button class="btn" id="lanjut3">${ICON.peta}Jelajahi studio</button></div></div></div>`;
+  $('#lanjut3').onclick = () => { Audio2.efek('klik'); keScene('jelajah'); };
+  $('#lanjut3b').onclick = () => { Audio2.efek('klik'); keScene('misi3'); };
   await tunggu(400);
   if ($('#lanjut3')) await bicaraKode(kode('info'), { pose: 'jelas' });
 };
@@ -876,7 +846,7 @@ SCENE.misi3 = async () => {
   const k = K(); mulaiMisi(3); pasangHUD({ no: 3, judul: 'Misi 3 dari 5 · Susun brief' }); latar('redup'); tokoh('l'); tokoh('r', 'kirana', 'tunjuk');
   const KOTAK = [{ k: 'tujuan', t: 'Tujuan', q: 'untuk apa?' }, { k: 'audiens', t: 'Audiens', q: 'siapa?' }, { k: 'media', t: 'Media', q: 'di mana?' }, { k: 'visual', t: 'Arahan visual', q: 'seperti apa?' }];
   const KARTU = acak(k.susun);
-  layar.innerHTML = `<div class="layar ka">
+  layar.innerHTML = `<div class="layar ka" data-p="m3">
     <div class="panel" style="flex:1"><span class="label">Meja desain · lembar brief</span><h2>Susun brief ${esc(k.produkDesain)}</h2>
       <p class="sub">Ketuk kartu, lalu ketuk kotak yang sesuai. Di komputer, kartu juga bisa diseret.</p>
       <div class="kotak4" id="kotak">${KOTAK.map(b => `<button class="slot" data-k="${b.k}" aria-label="Kotak ${b.t}, ${b.q}"><h3>${b.t}</h3><span class="tq">${b.q}</span></button>`).join('')}</div>
@@ -911,14 +881,14 @@ SCENE.misi3 = async () => {
   async function akhir() {
     umpan('ok', 'Brief tersusun!', 'Keempat komponen brief sudah terisi dengan tepat.', false);
     await bicaraKode(kode('m3_2'), { pose: 'bangga', tombol: 'Selesaikan misi' });
-    selesaiMisi('misi4');
+    selesaiMisi('misi4', 4);
   }
 };
 
 /* ---------- Misi 4: Negosiasi ---------- */
 SCENE.misi4 = async () => {
   const k = K(), N = k.nego; mulaiMisi(4); pasangHUD({ no: 4, judul: 'Misi 4 dari 5 · Negosiasi' }); latar('redup'); tokoh('l'); tokohKlien('ragu');
-  layar.innerHTML = `<div class="layar ka">
+  layar.innerHTML = `<div class="layar ka" data-p="m4">
     <div class="panel" style="width:360px;flex:none"><span class="label">Ruang rapat</span>
       <div class="chat isi-sisa">${kepalaChat('pesan baru · perubahan')}<div class="isi" id="chat"><div class="gel klien mengetik"><i></i><i></i><i></i></div></div></div>
       <span class="label">Papan perubahan</span>
@@ -954,7 +924,7 @@ SCENE.misi4 = async () => {
     $('#umpan').className = 'umpan'; $('#umpan').textContent = 'Pastikan kesepakatan sebelum mengubah brief.';
     idx++;
     if (idx < 4) tampil();
-    else { $$('#langkah span').forEach(s => s.className = 'ok'); await bicaraKode(kode('m4_2'), { pose: 'setuju', tombol: 'Selesaikan misi' }); selesaiMisi('misi5'); }
+    else { $$('#langkah span').forEach(s => s.className = 'ok'); await bicaraKode(kode('m4_2'), { pose: 'setuju', tombol: 'Selesaikan misi' }); selesaiMisi('misi5', 5); }
   };
   pasangAlat(() => ['Dengarkan dulu alasan klien sebelum menjawab.', 'Periksa kemampuan tim dan dampak teknis sebelum berjanji.', 'Cari jalan tengah: kebutuhan klien terpenuhi dan kualitas desain tetap terjaga.', 'Catat hasil kesepakatan terakhir yang disetujui kedua pihak.'][idx], () => jawab($('#opsi .kartu[data-b="1"]'), true));
   tampil();
@@ -964,7 +934,7 @@ SCENE.misi4 = async () => {
 SCENE.misi5 = async () => {
   const k = K(); mulaiMisi(5); pasangHUD({ no: 5, judul: 'Misi 5 dari 5 · Periksa ringkasan' }); latar('redup'); tokoh('l'); tokoh('r', 'kirana', 'pikir');
   const BARIS = k.periksa;
-  layar.innerHTML = `<div class="layar ka">
+  layar.innerHTML = `<div class="layar ka" data-p="m5">
     <div class="panel" style="flex:1"><span class="label">Area produksi</span><h2>Ringkasan tim punya 4 kesalahan</h2>
       <div style="display:flex;align-items:center;gap:10px"><p class="sub" style="flex:1">Ketuk baris yang keliru, lalu pilih koreksinya di kanan.</p><span class="hitung" id="hit">0 dari 4 diperbaiki</span></div>
       <div class="daftar-baris" id="baris">${BARIS.map(b => `<button class="baris" data-k="${b.k}" aria-expanded="false"><span class="k">${b.l}</span><span class="v">${esc(b.v)}</span><span class="st">cek</span></button>`).join('')}</div>
@@ -1003,7 +973,7 @@ SCENE.misi5 = async () => {
   async function akhir() {
     umpan('ok', 'Ringkasan sudah benar!', 'Semua data cocok dengan catatan klien dan kesepakatan terakhir.', false);
     await bicaraKode(kode('m5_2'), { pose: 'bangga', tombol: 'Selesaikan misi' });
-    selesaiMisi('konfirmasi');
+    selesaiMisi('konfirmasi', 'k');
   }
 };
 
@@ -1011,7 +981,7 @@ SCENE.misi5 = async () => {
 SCENE.konfirmasi = async () => {
   if (!D().selesai[5]) return keScene('peta');
   const k = K(); pasangHUD({ judul: 'Konfirmasi brief' }); latar('redup'); tokoh('l'); tokohKlien('sapa');
-  layar.innerHTML = `<div class="layar ka">
+  layar.innerHTML = `<div class="layar ka" data-p="konf">
     <div class="dok" style="flex:1"><span class="label">Ringkasan Design Brief · Final</span><h3>${esc(k.brief.judul)}</h3>
       <table>${k.brief.rows.map(([a, b]) => `<tr><td>${a}</td><td>${esc(b)}</td></tr>`).join('')}</table>
       <div class="cap" id="cap">DISETUJUI<small>SIMULASI</small></div></div>
@@ -1093,7 +1063,7 @@ SCENE.hasil = async () => {
   const lain = KASUS.find(x => !D(x.id).konfirmasi && x.id !== k.id);
   const C = 2 * Math.PI * 64;
   const Q = ['Mengapa desainer perlu bertanya kepada klien?', 'Apa akibatnya jika brief salah?', 'Bagaimana merespons perubahan dari klien?'];
-  layar.innerHTML = `<div class="layar ka">
+  layar.innerHTML = `<div class="layar ka" data-p="hasil">
     <div class="panel" style="width:390px;flex:none;gap:8px"><span class="label" style="text-align:center">Hasil kasus ${k.no} · ${esc(k.klien.nama)}</span>
       <div class="ring"><svg viewBox="0 0 150 150" aria-hidden="true"><circle cx="75" cy="75" r="64" fill="none" stroke="#efe6cc" stroke-width="14"/><circle id="ring" cx="75" cy="75" r="64" fill="none" stroke="#157A64" stroke-width="14" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C}" style="transition:stroke-dashoffset 1.6s ease-out"/></svg>
         <div class="n"><div><b id="angka">0</b><small>dari 100</small></div></div></div>
@@ -1106,7 +1076,7 @@ SCENE.hasil = async () => {
       <textarea id="r-isi" placeholder="Tulis jawabanmu dengan kalimatmu sendiri…"></textarea>
       <div class="alat" style="flex-wrap:nowrap"><button class="btn kecil" id="r-periksa">${ICON.lampu}Periksa jawaban</button><button class="btn sek kecil" id="r-contoh">${ICON.mata}Contoh</button><button class="btn sek kecil" id="r-next" style="margin-left:auto">Lanjut ${ICON.lanjut}</button></div>
       <div class="umpan-refl" id="r-umpan" aria-live="polite"></div>
-      <div class="alat"><button class="btn sek kecil" id="h-ringkas">${ICON.catatan}Catatan</button><button class="btn sek kecil" id="h-salin">Salin</button>
+      <div class="alat"><button class="btn sek kecil" id="h-studio">${ICON.peta}Studio</button><button class="btn sek kecil" id="h-ringkas">${ICON.catatan}Catatan</button><button class="btn sek kecil" id="h-salin">Salin</button>
         ${lain ? `<button class="btn kecil" id="h-lain" style="margin-left:auto">${ICON.orang}Kasus berikutnya</button>` : `<button class="btn kecil" id="h-kasus" style="margin-left:auto">${ICON.orang}Semua kasus</button>`}</div></div></div>`;
   /* --- Refleksi dengan umpan balik --- */
   if (!d.cekRefl) d.cekRefl = [0, 0, 0];
@@ -1135,7 +1105,8 @@ SCENE.hasil = async () => {
   bukaQ(0);
   $$('[data-u]').forEach(b => b.onclick = () => { Audio2.efek('klik'); bukaMisi(+b.dataset.u); });
   $('#h-ringkas').onclick = () => { Audio2.efek('klik'); modalCatatan(); };
-  const hl = $('#h-lain'); if (hl) hl.onclick = () => { Audio2.efek('klik'); S.kasus = lain.id; simpan(); keScene('peta'); };
+  $('#h-studio').onclick = () => { Audio2.efek('klik'); keScene('jelajah'); };
+  const hl = $('#h-lain'); if (hl) hl.onclick = () => { Audio2.efek('klik'); S.kasus = lain.id; simpan(); keScene('jelajah'); };
   const hk = $('#h-kasus'); if (hk) hk.onclick = () => { Audio2.efek('klik'); keScene('pilihKasus'); };
   $('#h-salin').onclick = async () => {
     const teks = `Misi Desainer: Pecahkan Design Brief\nKasus ${k.no}: ${k.klien.nama} (${k.jenis})\nSkor: ${t}/100 (${kat})\n\n` + Q.map((q, i) => `${i + 1}. ${q}\n${d.refleksi[i] || '-'}`).join('\n\n');
@@ -1151,20 +1122,356 @@ SCENE.hasil = async () => {
 };
 
 /* =========================================================
+   6b. MODE JELAJAH: berjalan di peta Studio Kreativa (RPG 2D)
+   Koordinat dunia = piksel gambar peta (1672 x 941)
+   ========================================================= */
+const AVA_JALAN = SVGURI(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" fill="#E9BA4A"/><path d="M14 120c2-26 21-36 46-36s44 10 46 36z" fill="#2C6E91"/><path d="M44 86q16 12 32 0" stroke="#fff" stroke-width="4" fill="none"/><path d="M52 82h16v10H52z" fill="#C08A5E"/><ellipse cx="60" cy="58" rx="23" ry="26" fill="#D9A273"/><path d="M36 54c-1-18 10-28 24-28s26 10 24 28c-6-9-12-12-24-12-9 0-15 4-24 12z" fill="#2B1E17"/><path d="M33 62a27 27 0 0 1 54 0" stroke="#203943" stroke-width="5" fill="none"/><rect x="28" y="56" width="10" height="16" rx="4" fill="#157A64"/><rect x="82" y="56" width="10" height="16" rx="4" fill="#157A64"/><circle cx="51" cy="61" r="2.8" fill="#1E1A17"/><circle cx="69" cy="61" r="2.8" fill="#1E1A17"/><path d="M51 71q9 7 18 0" stroke="#7A3B2B" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`);
+const Dunia = {
+  W: 1672, H: 941, aktif: false, siap: false, cv: null, ctx: null, peta: null, kepala: {},
+  p: { x: 845, y: 745, arah: 1, fase: 0, jalan: false }, tuju: null, keys: {}, pad: {}, cam: { x: 845, y: 600 }, z: 1, t0: 0, macet: 0, raf: 0,
+  // area yang bisa dilalui [x, y, lebar, tinggi]
+  JALAN: [[595, 375, 495, 400], [750, 765, 190, 75], [130, 410, 470, 210], [140, 612, 415, 155], [125, 115, 450, 255], [335, 360, 85, 60],
+    [595, 125, 490, 255], [1100, 165, 435, 203], [1075, 190, 35, 85], [1115, 395, 425, 245], [1080, 500, 45, 90]],
+  // perabot dan dinding yang menghalangi
+  BLOK: [[95, 478, 325, 134], [205, 455, 72, 60], [140, 638, 135, 135], [312, 660, 105, 92], [448, 648, 92, 107], [185, 140, 305, 215], [55, 100, 90, 255],
+    [705, 95, 75, 95], [890, 95, 75, 95], [665, 185, 345, 150], [700, 322, 80, 45], [895, 322, 80, 45], [1130, 195, 380, 148],
+    [1205, 425, 300, 210], [1530, 410, 70, 220], [1140, 395, 60, 65], [605, 560, 35, 215], [1035, 560, 60, 215], [625, 690, 70, 75], [970, 690, 70, 75]],
+  STASIUN: { 1: { x: 300, y: 450, r: 85, nama: 'Meja resepsionis' }, 3: { x: 640, y: 258, r: 92, nama: 'Meja desain' }, 5: { x: 1320, y: 352, r: 95, nama: 'Area produksi' } },
+  POS_KLIEN: { lobi: { x: 294, y: 690, nama: 'Ruang tunggu' }, rapat: { x: 1180, y: 520, nama: 'Ruang rapat' }, presentasi: { x: 525, y: 250, nama: 'Ruang presentasi' } },
+  KIRANA: { x: 935, y: 640 },
+  BAJU: { pemain: ['#2C6E91', '#2B2B33'], kirana: ['#3F7A85', '#1F2A4A'], sari: ['#E3A52B', '#234D3A'], wayan: ['#F2EFE4', '#3B3B3B'], ayu: ['#EF9AAB', '#7A1F2B'] },
+
+  init() {
+    this.cv = $('#dunia'); this.ctx = this.cv.getContext('2d');
+    this.peta = new Image(); this.peta.src = 'assets/img/peta_dunia.webp';
+    const muat = (id, src) => { const i = new Image(); i.src = src; this.kepala[id] = i; };
+    muat('pemain', AVA_JALAN); muat('kirana', IMG.kirana.ava); muat('sari', IMG.sari.ava); muat('wayan', AVA_WAYAN); muat('ayu', AVA_AYU);
+    this.lencana = [1, 2, 3, 4, 5].map(n => { const i = new Image(); i.src = LENC(n); return i; });
+    const kunci = { arrowup: 'u', w: 'u', arrowdown: 'd', s: 'd', arrowleft: 'l', a: 'l', arrowright: 'r', d: 'r' };
+    window.addEventListener('keydown', e => {
+      if (!this.aktif) return;
+      const k = e.key.toLowerCase();
+      if (this.beku()) return;
+      if (kunci[k]) { this.keys[kunci[k]] = true; this.tuju = null; e.preventDefault(); }
+      else if (k === 'e' || k === 'enter' || k === ' ') { e.preventDefault(); this.interaksi(); }
+      else if (k === 'm') { e.preventDefault(); this.modalPeta(); }
+    });
+    window.addEventListener('keyup', e => { const k = kunci[e.key.toLowerCase()]; if (k) this.keys[k] = false; });
+    window.addEventListener('blur', () => { this.keys = {}; this.pad = {}; });
+    this.cv.addEventListener('pointerdown', e => {
+      if (!this.aktif || this.beku()) return;
+      if (e.pointerType !== 'mouse') document.body.classList.add('sentuh');
+      const w = this.layarKeDunia(e.clientX, e.clientY);
+      const t = this.terdekatDari(w.x, w.y, 60);
+      if (t && this.jarak(t) <= t.r) { this.interaksi(t); return; }
+      const jl = this.jalur(t ? t.x : w.x, t ? t.y + 10 : w.y);
+      this.tuju = jl && jl.length ? { jalur: jl, obj: t } : null; this.macet = 0;
+      this.ketuk = { x: w.x, y: w.y, t: performance.now() };
+    });
+    if (matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window) document.body.classList.add('sentuh');
+  },
+  beku() { return modal.classList.contains('buka') || dialog.classList.contains('buka'); },
+  ukur() {
+    if (!this.cv) return;
+    const W = innerWidth, H = innerHeight, dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.cv.width = Math.round(W * dpr); this.cv.height = Math.round(H * dpr); this.dpr = dpr;
+    this.z = Math.max(Math.min(Math.min(W, H) / 600, 1.5), H / this.H, W / this.W);
+  },
+  statik(x, y) {
+    const isi = (a, b, r) => a >= r[0] && a <= r[0] + r[2] && b >= r[1] && b <= r[1] + r[3];
+    return [[x - 10, y], [x + 10, y], [x, y - 5], [x, y + 6]].every(([a, b]) => this.JALAN.some(r => isi(a, b, r)) && !this.BLOK.some(r => isi(a, b, r)));
+  },
+  bisa(x, y) { return this.statik(x, y) && !this.npc().some(n => Math.hypot(n.x - x, n.y - y) < 22); },
+  // pencarian jalur A* pada kisi 12 px agar pemain memutari dinding saat lantai diketuk
+  jalur(tx, ty) {
+    const G = 12, C = Math.ceil(this.W / G), Rw = Math.ceil(this.H / G);
+    if (!this.kisi) { this.kisi = new Uint8Array(C * Rw); for (let r = 0; r < Rw; r++) for (let c = 0; c < C; c++) this.kisi[r * C + c] = this.statik(c * G + G / 2, r * G + G / 2) ? 1 : 0; }
+    const npcSel = new Set(this.npc().map(n => Math.floor(n.y / G) * C + Math.floor(n.x / G)));
+    const ok = i => this.kisi[i] && !npcSel.has(i);
+    const sel = (x, y) => Math.max(0, Math.min(Rw - 1, Math.floor(y / G))) * C + Math.max(0, Math.min(C - 1, Math.floor(x / G)));
+    const dekatOk = i => { if (ok(i)) return i; const c0 = i % C, r0 = (i / C) | 0; for (let d = 1; d < 12; d++) { let best = -1, bd = 1e9; for (let r = r0 - d; r <= r0 + d; r++) for (let c = c0 - d; c <= c0 + d; c++) { if (r < 0 || c < 0 || r >= Rw || c >= C) continue; const j = r * C + c; if (ok(j)) { const dd = (r - r0) ** 2 + (c - c0) ** 2; if (dd < bd) { bd = dd; best = j; } } } if (best >= 0) return best; } return -1; };
+    const s = dekatOk(sel(this.p.x, this.p.y)), e = dekatOk(sel(tx, ty)); if (s < 0 || e < 0) return null;
+    const gS = new Float32Array(C * Rw).fill(1e9), dari = new Int32Array(C * Rw).fill(-1), tutup = new Uint8Array(C * Rw);
+    const ex = e % C, ey = (e / C) | 0, h = i => Math.hypot(i % C - ex, ((i / C) | 0) - ey);
+    const heap = [[h(s), s]]; gS[s] = 0;
+    const push = it => { heap.push(it); let i = heap.length - 1; while (i > 0) { const p = (i - 1) >> 1; if (heap[p][0] <= heap[i][0]) break; [heap[p], heap[i]] = [heap[i], heap[p]]; i = p; } };
+    const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let i = 0; for (;;) { const l = 2 * i + 1, r = l + 1; let m = i; if (l < heap.length && heap[l][0] < heap[m][0]) m = l; if (r < heap.length && heap[r][0] < heap[m][0]) m = r; if (m === i) break; [heap[m], heap[i]] = [heap[i], heap[m]]; i = m; } } return top; };
+    let n = 0;
+    while (heap.length && n++ < 20000) {
+      const [, i] = pop(); if (tutup[i]) continue; tutup[i] = 1; if (i === e) break;
+      const c = i % C, r = (i / C) | 0;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        if (!dx && !dy) continue; const nc = c + dx, nr = r + dy; if (nc < 0 || nr < 0 || nc >= C || nr >= Rw) continue;
+        const j = nr * C + nc; if (!ok(j) || tutup[j]) continue;
+        if (dx && dy && (!ok(r * C + nc) || !ok(nr * C + c))) continue;
+        const g2 = gS[i] + (dx && dy ? 1.414 : 1); if (g2 < gS[j]) { gS[j] = g2; dari[j] = i; push([g2 + h(j), j]); }
+      }
+    }
+    if (dari[e] < 0 && e !== s) return null;
+    const jalan = []; for (let i = e; i !== s && i >= 0; i = dari[i]) jalan.push({ x: (i % C) * G + G / 2, y: ((i / C) | 0) * G + G / 2 });
+    jalan.reverse();
+    // rapikan: lewati titik yang bisa dicapai lurus
+    const lurus = (a, b) => { const L = Math.hypot(b.x - a.x, b.y - a.y), k = Math.ceil(L / 6); for (let q = 1; q <= k; q++) { const x = a.x + (b.x - a.x) * q / k, y = a.y + (b.y - a.y) * q / k; if (!this.statik(x, y)) return false; } return true; };
+    const hasil = []; let dariT = { x: this.p.x, y: this.p.y }, i = 0;
+    while (i < jalan.length) { let j = jalan.length - 1; while (j > i && !lurus(dariT, jalan[j])) j--; hasil.push(jalan[j]); dariT = jalan[j]; i = j + 1; }
+    return hasil;
+  },
+  posKlien() { const nx = misiBerikut(); return nx === 4 || nx === 5 ? this.POS_KLIEN.rapat : (nx === 'konfirmasi' || nx === 'hasil') ? this.POS_KLIEN.presentasi : this.POS_KLIEN.lobi; },
+  npc() {
+    const k = K(), pk = this.posKlien();
+    return [{ id: 'kirana', jenis: 'npc', nama: 'Kak Kirana', x: this.KIRANA.x, y: this.KIRANA.y, r: 72 },
+      { id: k.klien.id, jenis: 'klien', nama: k.klien.nama, x: pk.x, y: pk.y, r: 72 }];
+  },
+  benda() {
+    const d = D(), list = this.npc();
+    [1, 3, 5].forEach(n => { const s = this.STASIUN[n]; list.push({ id: 'm' + n, jenis: 'stasiun', n, nama: `Misi ${n} · ${s.nama}`, x: s.x, y: s.y, r: s.r }); });
+    return list;
+  },
+  tujuan() {
+    const nx = misiBerikut(), k = K();
+    if (nx === 1 || nx === 3 || nx === 5) { const s = this.STASIUN[nx]; return { x: s.x, y: s.y - 40, teks: `Misi ${nx} · ${MISI[nx].nama}`, sub: `Pergi ke ${s.nama.toLowerCase()}` }; }
+    const pk = this.posKlien();
+    if (nx === 2 || nx === 4) return { x: pk.x, y: pk.y - 70, teks: `Misi ${nx} · ${MISI[nx].nama}`, sub: `Temui ${k.klien.nama} di ${pk.nama.toLowerCase()}` };
+    if (nx === 'konfirmasi') return { x: pk.x, y: pk.y - 70, teks: 'Konfirmasi brief', sub: `Temui ${k.klien.nama} di ruang presentasi` };
+    return { x: this.KIRANA.x, y: this.KIRANA.y - 70, teks: 'Kasus selesai!', sub: 'Bicara dengan Kak Kirana untuk melihat hasil' };
+  },
+  jarak(o) { return Math.hypot(o.x - this.p.x, o.y - this.p.y); },
+  terdekat() { let best = null, bd = 1e9; this.benda().forEach(o => { const d = this.jarak(o); if (d <= o.r && d < bd) { bd = d; best = o; } }); return best; },
+  terdekatDari(x, y, rad) { let best = null, bd = rad; this.benda().forEach(o => { const d = Math.hypot(o.x - x, (o.y - (o.jenis === 'stasiun' ? 0 : 25)) - y); if (d < bd) { bd = d; best = o; } }); return best; },
+  layarKeDunia(cx, cy) { return { x: this.cam.x + (cx - innerWidth / 2) / this.z, y: this.cam.y + (cy - innerHeight / 2) / this.z }; },
+
+  async masuk() {
+    if (!this.cv) this.init();
+    document.body.classList.add('jelajah'); latar(''); hud.hidden = true;
+    const d = D();
+    if (!d.posisi) d.posisi = { x: 845, y: 745 };
+    this.p.x = d.posisi.x; this.p.y = d.posisi.y; if (!this.bisa(this.p.x, this.p.y)) { this.p.x = 845; this.p.y = 745; }
+    this.cam.x = this.p.x; this.cam.y = this.p.y; this.keys = {}; this.pad = {}; this.tuju = null;
+    this.ukur(); this.pasangHUD();
+    this.aktif = true; cancelAnimationFrame(this.raf); this.t0 = performance.now(); this.raf = requestAnimationFrame(t => this.loop(t));
+    await tunggu(400);
+    if (!this.aktif) return;
+    const nx = misiBerikut();
+    if (!d.introJelajah) {
+      d.introJelajah = true; simpan();
+      const kontrol = document.body.classList.contains('sentuh') ? 'Geser dengan tombol arah di kiri bawah, atau ketuk lantai untuk berjalan. Tekan tombol Bicara saat berada di dekat orang atau meja.' : 'Berjalanlah dengan tombol panah atau W A S D. Tekan E untuk berbicara atau memulai misi, dan M untuk membuka peta.';
+      await bicara('kirana', `Selamat datang di Studio Kreativa! Hari ini kamu membantu ${K().klien.nama}. ${kontrol} Ikuti bintang kuning untuk menemukan tujuanmu.`);
+    } else if (nx === 'konfirmasi') Suara.kode('umum_peta_konf');
+  },
+  keluar() {
+    if (!this.aktif) return;
+    this.aktif = false; cancelAnimationFrame(this.raf); document.body.classList.remove('jelajah'); $('#hud-dunia').hidden = true;
+    const d = S.kasus ? D() : null; if (d) { d.posisi = { x: Math.round(this.p.x), y: Math.round(this.p.y) }; simpan(); }
+  },
+  pasangHUD() {
+    const h = $('#hud-dunia'), k = K();
+    const panah = r => `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="transform:rotate(${r}deg)"><path d="M12 5l7 9H5z"/></svg>`;
+    h.hidden = false;
+    h.innerHTML = `
+      <div class="hd-tujuan" aria-live="polite"><span class="ava-bulat" style="background-image:url('${ava(k.klien.id)}')"></span><div><small>Kasus ${k.no} · ${esc(k.klien.nama)} · ${esc(k.jenis)}</small><b id="hd-teks"></b><span id="hd-sub" style="font-size:.85em;opacity:.85"></span></div></div>
+      <div class="hd-kanan"><div class="skor" aria-label="Skor"><img src="${BINTANG}" alt=""><b>${totalSemua()}</b></div>
+        <button class="ikonbtn" id="hd-peta" aria-label="Buka peta (M)">${ICON.peta}</button>
+        ${D().selesai[2] ? `<button class="ikonbtn" id="hd-catatan" aria-label="Catatan klien">${ICON.catatan}</button>` : ''}
+        <button class="ikonbtn" id="hd-menu" aria-label="Menu">${ICON.orang}</button>
+        <button class="ikonbtn" id="hd-panduan" aria-label="Panduan">${ICON.tanya}</button>
+        <button class="ikonbtn" id="hd-suara" aria-label="Pengaturan suara">${adaSuara() ? ICON.suara : ICON.bisu}</button>
+        <button class="ikonbtn" id="hd-layar" aria-label="Layar penuh">${ICON.layar}</button></div>
+      <div class="dpad" aria-label="Tombol arah">
+        <button class="u" data-d="u" aria-label="Atas">${panah(0)}</button><button class="l" data-d="l" aria-label="Kiri">${panah(-90)}</button>
+        <span class="tengah"></span>
+        <button class="r" data-d="r" aria-label="Kanan">${panah(90)}</button><button class="d" data-d="d" aria-label="Bawah">${panah(180)}</button></div>
+      <div class="aksi-dunia"><span class="label-aksi" id="hd-label" hidden></span><button class="tbl-aksi" id="hd-aksi" disabled>Bicara<kbd>E</kbd></button></div>
+      <div class="petunjuk-kunci"><kbd>W A S D</kbd>/<kbd>↑↓←→</kbd> berjalan · <kbd>E</kbd> bicara · <kbd>M</kbd> peta</div>`;
+    $('#hd-peta').onclick = () => { Audio2.efek('klik'); this.modalPeta(); };
+    const c = $('#hd-catatan'); if (c) c.onclick = () => { Audio2.efek('klik'); modalCatatan(); };
+    $('#hd-panduan').onclick = () => { Audio2.efek('klik'); modalPanduan(); };
+    $('#hd-suara').onclick = () => { Audio2.efek('klik'); bukaSuara(); };
+    $('#hd-layar').onclick = () => { Audio2.efek('klik'); layarPenuh(); };
+    $('#hd-aksi').onclick = () => { Audio2.efek('klik'); this.interaksi(); };
+    $('#hd-menu').onclick = () => { Audio2.efek('klik'); bukaModal(`<h2>Menu</h2><p class="sub" style="margin:0 0 14px">Kasus ${k.no} · ${esc(k.klien.nama)} · ${jumlahSelesai(k.id)}/5 misi selesai</p>
+      <div class="alat"><button class="btn sek" id="mn-kasus">${ICON.orang}Ganti klien</button>${D().konfirmasi ? `<button class="btn emas" id="mn-hasil">Hasil &amp; refleksi</button>` : ''}<button class="btn sek" id="mn-muka">Laman muka</button></div>`, { lebar: 560 });
+      $('#mn-kasus').onclick = () => { Audio2.efek('klik'); keScene('pilihKasus'); };
+      $('#mn-muka').onclick = () => { Audio2.efek('klik'); keScene('muka'); };
+      const mh = $('#mn-hasil'); if (mh) mh.onclick = () => { Audio2.efek('klik'); keScene('hasil'); }; };
+    $$('.dpad button').forEach(b => {
+      const on = e => { e.preventDefault(); this.pad[b.dataset.d] = true; b.classList.add('on'); this.tuju = null; try { b.setPointerCapture(e.pointerId); } catch (x) {} };
+      const off = () => { this.pad[b.dataset.d] = false; b.classList.remove('on'); };
+      b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('lostpointercapture', off);
+    });
+    const tj = this.tujuan(); $('#hd-teks').textContent = tj.teks; $('#hd-sub').textContent = tj.sub;
+  },
+  modalPeta() {
+    const tj = this.tujuan(), pc = (x, y) => `left:${x / this.W * 100}%;top:${y / this.H * 100}%`;
+    const tanda = this.benda().map(o => `<span class="mp-titik ${o.jenis}" style="${pc(o.x, o.y)}"><i></i><b>${esc(o.jenis === 'stasiun' ? o.nama.split(' · ')[1] : o.nama)}</b></span>`).join('');
+    bukaModal(`<h2>Peta Studio Kreativa</h2><p class="sub" style="margin:0 0 10px;font-size:14px">★ tujuan aktif: <b>${esc(tj.teks)}</b> · ● posisimu</p>
+      <div class="mini-peta">${tanda}<span class="mp-bintang" style="${pc(tj.x, tj.y + 30)}">★</span><span class="mp-saya" style="${pc(this.p.x, this.p.y)}"></span></div>
+      <div class="alat" style="margin-top:12px"><button class="btn" data-tutup>Tutup</button></div>`, { lebar: potret ? 672 : 960 });
+  },
+  async interaksi(o) {
+    o = o || this.terdekat(); if (!o || this.beku()) return;
+    this.keys = {}; this.pad = {}; this.tuju = null;
+    const k = K(), nx = misiBerikut(), d = D();
+    if (o.jenis === 'stasiun') {
+      if (!terbuka(o.n)) { Audio2.efek('salah'); toast(`Selesaikan Misi ${o.n - 1} dulu.`); Suara.ucap('kirana', `Meja ini untuk Misi ${o.n}. Selesaikan dulu Misi ${o.n - 1}, ya.`); return; }
+      bukaMisi(o.n); return;
+    }
+    if (o.jenis === 'klien') {
+      if (nx === 2 || nx === 4) { bukaMisi(nx); return; }
+      if (nx === 'konfirmasi') { this.keluar(); keScene('konfirmasi'); return; }
+      if (d.selesai[2] && (nx === 'hasil')) { await bicara(k.klien.id, `Terima kasih banyak, Kak. Brief-nya sangat membantu!`, { pose: 'setuju' }); return; }
+      if (nx === 1) { await bicara(k.klien.id, `Halo, Kak! Saya sudah mengirim pesan ke meja resepsionis. Silakan dibaca dulu, ya.`); return; }
+      const ulang = [2, 4].filter(n => d.selesai[n]);
+      await bicara(k.klien.id, ulang.length ? `Saya tunggu kabar baiknya ya, Kak. Kalau ada yang perlu ditanyakan lagi, saya di sini.` : `Saya tunggu kabar baiknya ya, Kak.`);
+      return;
+    }
+    // Kak Kirana memberi arahan
+    const nama = k.klien.nama;
+    const arah = { 1: `Pesan dari ${nama} sudah masuk di komputer meja resepsionis, di sebelah kiri aula. Masuk lewat belakang meja, lalu tekan Bicara di dekat komputer.`,
+      2: `${nama} sudah menunggu di ruang tunggu, di bawah meja resepsionis. Hampiri dan ajukan pertanyaan yang tepat.`,
+      3: `Saatnya menyusun brief di meja desain, ruangan di atas aula.`,
+      4: `${nama} menunggumu di ruang rapat sebelah kanan. Ada perubahan yang perlu dibicarakan.`,
+      5: `Tim sudah membuat ringkasan. Periksa di area produksi, lewat pintu kanan ruang meja desain.`,
+      konfirmasi: `Ringkasan sudah benar. Temui ${nama} di ruang presentasi kiri atas untuk konfirmasi.` };
+    if (nx === 'hasil') {
+      await bicara('kirana', `Kasus ${nama} sudah selesai. Hebat! Mau melihat hasil dan menulis refleksi?`, { tombol: 'Lihat hasil' });
+      this.keluar(); keScene('hasil'); return;
+    }
+    await bicara('kirana', arah[nx]);
+  },
+
+  loop(t) {
+    if (!this.aktif) return;
+    const dt = Math.min(0.05, (t - this.t0) / 1000); this.t0 = t;
+    this.gerak(dt); this.gambar(t / 1000);
+    this.raf = requestAnimationFrame(tt => this.loop(tt));
+  },
+  gerak(dt) {
+    let dx = 0, dy = 0;
+    if (!this.beku()) {
+      const a = Object.assign({}, this.keys); Object.keys(this.pad).forEach(k => { if (this.pad[k]) a[k] = true; });
+      dx = (a.r ? 1 : 0) - (a.l ? 1 : 0); dy = (a.d ? 1 : 0) - (a.u ? 1 : 0);
+      if (!dx && !dy && this.tuju) {
+        const ob = this.tuju.obj;
+        if (ob && this.jarak(ob) <= ob.r * 0.75) { this.tuju = null; this.interaksi(ob); }
+        else {
+          let wp = this.tuju.jalur[0];
+          while (wp && Math.hypot(wp.x - this.p.x, wp.y - this.p.y) < 6) { this.tuju.jalur.shift(); wp = this.tuju.jalur[0]; }
+          if (!wp) { this.tuju = null; if (ob && this.jarak(ob) <= ob.r) this.interaksi(ob); }
+          else { const vx = wp.x - this.p.x, vy = wp.y - this.p.y, L = Math.hypot(vx, vy); dx = vx / L; dy = vy / L; }
+        }
+      }
+    }
+    const L = Math.hypot(dx, dy);
+    this.p.jalan = L > 0;
+    if (L) {
+      dx /= L; dy /= L; const v = 175 * dt;
+      const x0 = this.p.x, y0 = this.p.y;
+      if (this.bisa(this.p.x + dx * v, this.p.y)) this.p.x += dx * v;
+      if (this.bisa(this.p.x, this.p.y + dy * v)) this.p.y += dy * v;
+      if (dx) this.p.arah = dx > 0 ? 1 : -1;
+      this.p.fase += dt * 11;
+      const pindah = Math.hypot(this.p.x - x0, this.p.y - y0);
+      if (this.tuju) { this.macet = pindah < v * 0.2 ? this.macet + dt : 0; if (this.macet > 0.35) { this.tuju = null; this.macet = 0; } }
+      if (pindah < 0.01) this.p.jalan = false;
+    }
+    // kamera mengikuti pemain
+    const W = innerWidth / this.z, H = innerHeight / this.z;
+    const tx = W >= this.W ? this.W / 2 : Math.max(W / 2, Math.min(this.W - W / 2, this.p.x));
+    const ty = H >= this.H ? this.H / 2 : Math.max(H / 2, Math.min(this.H - H / 2, this.p.y - 20));
+    this.cam.x += (tx - this.cam.x) * Math.min(1, dt * 7); this.cam.y += (ty - this.cam.y) * Math.min(1, dt * 7);
+    // tombol aksi
+    const o = this.terdekat(), b = $('#hd-aksi'), lb = $('#hd-label');
+    if (b) {
+      const ada = !!o && !this.beku();
+      if (b.disabled === ada) b.disabled = !ada;
+      const teks = o ? (o.jenis === 'stasiun' ? (terbuka(o.n) ? (D().selesai[o.n] ? `Ulangi ${o.nama}` : `Mulai ${o.nama}`) : `${o.nama} (terkunci)`) : `Bicara dengan ${o.nama}`) : '';
+      if (lb.textContent !== teks) lb.textContent = teks;
+      lb.hidden = !ada;
+    }
+  },
+  orang(c, x, y, id, jalan, fase, arah, nama, sorot) {
+    const [baju, celana] = this.BAJU[id] || this.BAJU.pemain;
+    const ay = jalan ? Math.sin(fase) * 4 : 0, bob = jalan ? -Math.abs(Math.sin(fase)) * 2.5 : Math.sin(performance.now() / 600 + x) * 0.6;
+    c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.ellipse(x, y + 1, 14, 5, 0, 0, 7); c.fill();
+    c.fillStyle = celana; c.fillRect(x - 8, y - 15 + bob, 6, 14 + ay * 0.5); c.fillRect(x + 2, y - 15 + bob, 6, 14 - ay * 0.5);
+    c.fillStyle = '#2a2320'; c.fillRect(x - 9, y - 2 + ay * 0.5, 8, 3); c.fillRect(x + 1, y - 2 - ay * 0.5, 8, 3);
+    c.fillStyle = baju; c.beginPath(); c.roundRect(x - 11, y - 33 + bob, 22, 20, 7); c.fill();
+    c.fillRect(x - 14, y - 30 + bob - ay * 0.6, 4, 13); c.fillRect(x + 10, y - 30 + bob + ay * 0.6, 4, 13);
+    const img = this.kepala[id], hy = y - 48 + bob;
+    c.save(); c.beginPath(); c.arc(x, hy, 16, 0, 7); c.closePath(); c.fillStyle = '#fff'; c.fill(); c.clip();
+    if (img && img.complete && img.naturalWidth) { if (arah < 0) { c.translate(2 * x, 0); c.scale(-1, 1); } c.drawImage(img, x - 16, hy - 16, 32, 32); }
+    c.restore();
+    c.lineWidth = sorot ? 3 : 2; c.strokeStyle = sorot ? '#E9BA4A' : '#fff'; c.beginPath(); c.arc(x, hy, 16, 0, 7); c.stroke();
+    if (nama) {
+      c.font = '700 11px Poppins, sans-serif'; const w = c.measureText(nama).width + 14;
+      c.fillStyle = id === 'pemain' ? 'rgba(233,186,74,.95)' : 'rgba(32,57,67,.9)'; c.beginPath(); c.roundRect(x - w / 2, hy - 36, w, 17, 8); c.fill();
+      c.fillStyle = id === 'pemain' ? '#203943' : '#fff'; c.textAlign = 'center'; c.fillText(nama, x, hy - 24);
+    }
+  },
+  bintang(c, x, y, r) {
+    c.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r; c.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } c.closePath();
+    c.fillStyle = '#E9BA4A'; c.fill(); c.lineWidth = 2.5; c.strokeStyle = '#fff'; c.stroke();
+  },
+  gambar(ts) {
+    const c = this.ctx, dpr = this.dpr, z = this.z, W = innerWidth, H = innerHeight;
+    c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = '#BBA895'; c.fillRect(0, 0, this.cv.width, this.cv.height);
+    c.setTransform(dpr * z, 0, 0, dpr * z, dpr * (W / 2 - this.cam.x * z), dpr * (H / 2 - this.cam.y * z));
+    c.imageSmoothingEnabled = true;
+    if (this.peta.complete) c.drawImage(this.peta, 0, 0, this.W, this.H);
+    const d = D(), dekat = this.terdekat(), nx = misiBerikut();
+    // stasiun misi
+    [1, 3, 5].forEach(n => {
+      const s = this.STASIUN[n], buka = terbuka(n), aktif = nx === n, pul = 1 + Math.sin(ts * 3) * 0.08;
+      c.save(); c.globalAlpha = buka ? 0.9 : 0.45;
+      c.fillStyle = aktif ? 'rgba(233,186,74,.35)' : 'rgba(21,122,100,.22)'; c.beginPath(); c.ellipse(s.x, s.y + 8, 40 * (aktif ? pul : 1), 15 * (aktif ? pul : 1), 0, 0, 7); c.fill();
+      c.lineWidth = 2; c.strokeStyle = aktif ? '#E9BA4A' : '#157A64'; c.stroke();
+      const L = this.lencana[n - 1]; if (L.complete) { if (!buka) c.filter = 'grayscale(1)'; c.drawImage(L, s.x - 17, s.y - 34, 34, 37); c.filter = 'none'; }
+      if (d.selesai[n]) { c.fillStyle = '#1f8a5a'; c.beginPath(); c.arc(s.x + 15, s.y - 30, 8, 0, 7); c.fill(); c.strokeStyle = '#fff'; c.lineWidth = 2; c.beginPath(); c.moveTo(s.x + 11, s.y - 30); c.lineTo(s.x + 14, s.y - 27); c.lineTo(s.x + 19, s.y - 33); c.stroke(); }
+      c.restore();
+    });
+    // orang, diurutkan berdasarkan posisi y
+    const daftar = this.npc().map(n => ({ ...n, jalan: false, fase: 0, arah: n.x > this.p.x ? -1 : 1 }));
+    daftar.push({ id: 'pemain', nama: 'Kamu', x: this.p.x, y: this.p.y, jalan: this.p.jalan, fase: this.p.fase, arah: this.p.arah });
+    daftar.sort((a, b) => a.y - b.y).forEach(o => this.orang(c, o.x, o.y, o.id, o.jalan, o.fase, o.arah, o.nama, dekat && dekat.id === o.id));
+    // penanda ketukan
+    if (this.ketuk && performance.now() - this.ketuk.t < 600) { const a = 1 - (performance.now() - this.ketuk.t) / 600; c.strokeStyle = `rgba(233,186,74,${a})`; c.lineWidth = 3; c.beginPath(); c.ellipse(this.ketuk.x, this.ketuk.y, 18 * (1.4 - a * .4), 7 * (1.4 - a * .4), 0, 0, 7); c.stroke(); }
+    // penanda interaksi
+    if (dekat && !this.beku()) {
+      const yy = dekat.jenis === 'stasiun' ? dekat.y - 52 : dekat.y - 98;
+      c.fillStyle = '#fff'; c.beginPath(); c.roundRect(dekat.x - 13, yy - 13, 26, 24, 7); c.fill(); c.strokeStyle = '#157A64'; c.lineWidth = 2; c.stroke();
+      c.fillStyle = '#157A64'; c.font = '800 14px Poppins, sans-serif'; c.textAlign = 'center'; c.fillText(document.body.classList.contains('sentuh') ? '!' : 'E', dekat.x, yy + 4);
+    }
+    // bintang tujuan
+    const tj = this.tujuan(), by = tj.y - 22 + Math.sin(ts * 4) * 5;
+    if (!dekat || Math.hypot(dekat.x - tj.x, dekat.y - tj.y - 40) > 60) this.bintang(c, tj.x, by, 12);
+    // panah di tepi layar bila tujuan di luar pandangan
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const sx = W / 2 + (tj.x - this.cam.x) * z, sy = H / 2 + (tj.y - this.cam.y) * z, m = 46;
+    if (sx < m || sx > W - m || sy < m + 60 || sy > H - m) {
+      const cx = W / 2, cy = H / 2, ang = Math.atan2(sy - cy, sx - cx);
+      const kx = Math.max(m, Math.min(W - m, sx)), ky = Math.max(m + 70, Math.min(H - m - 10, sy));
+      c.save(); c.translate(kx, ky); c.rotate(ang);
+      c.fillStyle = 'rgba(32,57,67,.85)'; c.beginPath(); c.arc(0, 0, 22, 0, 7); c.fill();
+      c.fillStyle = '#E9BA4A'; c.beginPath(); c.moveTo(14, 0); c.lineTo(-6, -10); c.lineTo(-2, 0); c.lineTo(-6, 10); c.closePath(); c.fill(); c.restore();
+    }
+  },
+};
+
+/* =========================================================
    7. SKALA LAYAR, PRAMUAT, MULAI
    ========================================================= */
-let lanjutPotret = false;
+let potret = null;
 function skala() {
-  const w = window.innerWidth, h = window.innerHeight;
-  document.documentElement.style.setProperty('--s', Math.min(w / 1280, h / 720));
-  $('#putar').style.display = (h > w && w < 900 && !lanjutPotret) ? 'flex' : 'none';
+  const w = window.innerWidth, h = window.innerHeight, p = h > w;
+  if (p !== potret) { potret = p; $('#stage').classList.toggle('potret', p); }
+  document.documentElement.style.setProperty('--s', p ? Math.min(w / 720, h / 1280) : Math.min(w / 1280, h / 720));
+  Dunia.ukur();
 }
-window.addEventListener('resize', skala); window.addEventListener('orientationchange', () => setTimeout(skala, 200));
-$('#putar-lanjut').onclick = () => { lanjutPotret = true; skala(); };
+window.addEventListener('resize', skala); window.addEventListener('orientationchange', () => setTimeout(skala, 250));
 skala();
 
 async function pramuat() {
-  const gambar = ['assets/img/latar.webp', 'assets/img/peta.webp', ...Object.values(IMG.kirana), ...Object.values(IMG.sari), ...[1, 2, 3, 4, 5].map(LENC), BINTANG];
+  const gambar = ['assets/img/latar.webp', 'assets/img/peta_dunia.webp', ...Object.values(IMG.kirana), ...Object.values(IMG.sari), ...[1, 2, 3, 4, 5].map(LENC), BINTANG];
   const total = gambar.length + 1; let n = 0;
   const maju = () => { n++; $('#muatbar').style.width = Math.round(n / total * 100) + '%'; };
   await Promise.all([Promise.all(gambar.map(src => new Promise(r => { const i = new Image(); i.onload = i.onerror = () => { maju(); r(); }; i.src = src; }))), Audio2.muat().then(maju)]);
@@ -1185,5 +1492,5 @@ document.addEventListener('visibilitychange', () => {
   if (document.hidden) { Suara.stop(); if (Audio2.ctx) Audio2.ctx.suspend(); else if (Audio2.el) Audio2.el.pause(); }
   else { if (Audio2.ctx) Audio2.ctx.resume(); Audio2.musik(); }
 });
-window.__MD = { S: () => S, keScene, NASKAH, KASUS };
+window.__MD = { S: () => S, keScene, NASKAH, KASUS, Dunia };
 })();
